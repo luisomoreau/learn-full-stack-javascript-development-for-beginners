@@ -5,6 +5,7 @@ In this tutorial, I'll try to teach you how to create a backend with a public AP
 As an example, we will work on a project to manage and display cooking recipes.
 First, we will develop a backend with a public API to create, read, update and delete the recipes.
 Then, we will use Angular 6 to develop a simple website that can display the cooking recipes.
+You can checkout out this project's [Github repository](https://github.com/luisomoreau/learn-full-stack-javascript-development-for-beginners)
 
 
 Here are the steps we will follow:
@@ -217,5 +218,99 @@ Follow the instructions:
 Enter an empty property name when done.
 ? Property name: Name
 ```
+
+Example with the Recipe model:
+
+```
+$> lb model Recipe
+```
+
+```
+? Select the datasource to attach undefined to: mongo (mongodb)
+? Select model's base class PersistedModel
+? Expose Recipe via the REST API? Yes
+? Custom plural form (used to build REST URL): Recipes
+? Common model or server only? common
+Let's add some Recipe properties now.
+
+Enter an empty property name when done.
+? Property name: id
+? Property type: string
+? Required? No
+? Default value[leave blank for none]:
+
+Let's add another Recipe property.
+Enter an empty property name when done.
+? Property name: name
+? Property type: string
+? Required? Yes
+? Default value[leave blank for none]:
+
+Let's add another Recipe property.
+Enter an empty property name when done.
+? Property name: description
+? Property type: string
+? Required? No
+? Default value[leave blank for none]:
+
+Let's add another Recipe property.
+Enter an empty property name when done.
+? Property name: guideLines
+? Property type: string
+? Required? No
+? Default value[leave blank for none]:
+
+Let's add another Recipe property.
+Enter an empty property name when done.
+
+? Property name: preparationTime
+? Property type: string
+? Required? No
+? Default value[leave blank for none]:
+
+Let's add another Recipe property.
+Enter an empty property name when done.
+? Property name: cookingTime
+? Property type: string
+? Required? No
+? Default value[leave blank for none]:
+
+Let's add another Recipe property.
+Enter an empty property name when done.
+? Property name: tips
+? Property type: string
+? Required? No
+? Default value[leave blank for none]:
+
+Let's add another Recipe property.
+Enter an empty property name when done.
+? Property name: image
+? Property type: string
+? Required? No
+? Default value[leave blank for none]:
+
+
+```
+
+We will try to see in the Loopback Explorer our new Recipe model:
+
+If you come across this error:
+```
+MongoNetworkError: failed to connect to server [localhost:27017] on first connect [MongoNetworkError: connect ECONNREFUSED 127.0.0.1:
+27017]
+```
+It means that your mongodb service is not running.
+On macOS, you can start the service with:
+```
+$> brew services mongodb
+```
+
+Then run again:
+```
+$> npm start
+```
+Open the explorer [http://localhost:3000/explorer](http://localhost:3000/explorer). You should now see your new model API routes:
+
+![Explorer with Recipes](assets/lb-explorer-recipes.png)
 
 Then, change manually the extension .js to .ts in common/models my-model.js and copy paste the code in example.ts (don't forget to remplace Example by your model name in lines 25 and 71).
