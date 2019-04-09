@@ -723,3 +723,44 @@ You can find all the needed documentation about Loopback filters here:
 [https://loopback.io/doc/en/lb3/Querying-data.html](https://loopback.io/doc/en/lb3/Querying-data.html)
 
 ![loopback filters](assets/loopback-filters.png)
+
+Let's see the include filter to get the cookies recipe with the ingredients:
+
+Go back to the explorer to get the recipes and add the following filter:
+```
+{"include":"ingredients"}
+```
+![lb explorer filters](assets/lb-explorer-include-filter.png)
+
+You will see in the response that the associated ingredients are included in an array:
+```
+[
+  {
+    "id": "5cac667fbcd943a6690cbf3f",
+    "name": "Cookies",
+    "description": "Homemade cookies",
+    "guideLines": [
+      "Preheat the oven to 200°C.",
+      "Mix together the two sugars.",
+      "Mix the softened butter into the sugar in globs.",
+      "Mix in the eggs one at a time.",
+      "Measure and mix in the vanilla, salt, and baking soda.",
+      "Add the flour all at once."
+    ],
+    "preparationTime": "30 minutes",
+    "cookingTime": "30 minutes",
+    "tips": "You can add vanilla to give a better taste",
+    "image": "http://www.ricenflour.com/wp-content/uploads/2016/01/rnf-chocolatechip-cookie.jpg",
+    "ingredients": [
+      {
+        "id": "5cac70f64df833a79f59ee65",
+        "name": "Eggs",
+        "quantity": 2,
+        "unit": "piece",
+        "recipeId": "5cac667fbcd943a6690cbf3f"
+      }
+    ]
+  }
+]
+```
+We won't enter into details about the other filters but I invite you to take a look at the Loopback documentation.
