@@ -325,6 +325,18 @@ $> curl http://localhost:3000/api/Recipes/
 Now try to POST a cookies recipe:
 
 ![POST Cookies 1](assets/lb-explorer-post-cookies-1.png)
+
+```
+{"name":"Cookies",
+"description":"Homemade cookies",
+"guideLines":"Preheat the oven to 200°C. Mix together the two sugars. Mix the softened butter into the sugar in globs. Mix in the eggs one at a time. Measure and mix in the vanilla, salt, and baking soda. Add
+the flour all at once.",
+"preparationTime":"30 minutes",
+"cookingTime":"30 minutes",
+"tips":"You can add vanilla to give a better taste",
+"image":"http://www.ricenflour.com/wp-content/uploads/2016/01/rnf-chocolatechip-cookie.jpg"}
+```
+
 ![POST Cookies 1](assets/lb-explorer-post-cookies-2.png)
 
 Run again:
@@ -396,7 +408,24 @@ By:
 ```
 
 Don't worry about the relations and acls fields by now, we will have a look at it after.
-As you see, we can change anything within the code so don't worry if you need to add more properties or if you want to change their types.
+
+As you see, we can change anything within the code so don't worry if you need to add more properties or if you want to change their types. However, be careful when you change the model's properties. It may break your application...
+In our case, we need to delete our cookies recipe because the "string" type is incompatible with ["string"].
+If you want to add the cookies recipes with and array of guideLines, you can use this recipe:
+```
+{"name":"Cookies",
+"description":"Homemade cookies",
+"guideLines":[
+"Preheat the oven to 200°C.",
+"Mix together the two sugars.",
+"Mix the softened butter into the sugar in globs.",
+"Mix in the eggs one at a time.",
+"Measure and mix in the vanilla, salt, and baking soda.", "Add the flour all at once."],
+"preparationTime":"30 minutes",
+"cookingTime":"30 minutes",
+"tips":"You can add vanilla to give a better taste",
+"image":"http://www.ricenflour.com/wp-content/uploads/2016/01/rnf-chocolatechip-cookie.jpg"}
+```
 
 Just before adding the ingredient model, let's have a look at the server/model-config.json file:
 
