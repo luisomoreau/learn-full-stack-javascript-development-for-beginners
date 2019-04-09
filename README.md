@@ -338,7 +338,7 @@ the flour all at once.",
 "preparationTime":"30 minutes",
 "cookingTime":"30 minutes",
 "tips":"You can add vanilla to give a better taste",
-"image":"http://www.ricenflour.com/wp-content/uploads/2016/01/rnf-chocolatechip-cookie.jpg"}
+"image":"https://raw.githubusercontent.com/luisomoreau/learn-full-stack-javascript-development-for-beginners/master/assets/cookies-sweets-food-dessert-delicious-snack-sugar.jpg"}
 ```
 
 ![POST Cookies 1](assets/lb-explorer-post-cookies-2.png)
@@ -347,7 +347,7 @@ Run again:
 ```
 $> curl http://localhost:3000/api/Recipes/
 // the response should be an array: [{"id":"5c409091fa17f2c9f80d0604","name":"Cookies","description":"Homemade cookies","guideLines":"Preheat the oven to 200°C. Mix together the two sugars. Mix the softened butter into the sugar in globs. Mix in the eggs one at a time. Measure and mix in the vanilla, salt, and baking soda. Add
-the flour all at once.","preparationTime":"30 minutes","cookingTime":"30 minutes","tips":"You can add vanilla to give a better taste","image":"http://www.ricenflour.com/wp-content/uploads/2016/01/rnf-chocolatechip-cookie.jpg"}]
+the flour all at once.","preparationTime":"30 minutes","cookingTime":"30 minutes","tips":"You can add vanilla to give a better taste","image":"https://raw.githubusercontent.com/luisomoreau/learn-full-stack-javascript-development-for-beginners/master/assets/cookies-sweets-food-dessert-delicious-snack-sugar.jpg"}]
 ```
 
 Here we go! We have our first model working!
@@ -428,7 +428,7 @@ If you want to add the cookies recipes with and array of guideLines, you can use
 "preparationTime":"30 minutes",
 "cookingTime":"30 minutes",
 "tips":"You can add vanilla to give a better taste",
-"image":"http://www.ricenflour.com/wp-content/uploads/2016/01/rnf-chocolatechip-cookie.jpg"}
+"image":"https://raw.githubusercontent.com/luisomoreau/learn-full-stack-javascript-development-for-beginners/master/assets/cookies-sweets-food-dessert-delicious-snack-sugar.jpg"}
 ```
 
 Just before adding the ingredient model, let's have a look at the server/model-config.json file:
@@ -754,7 +754,7 @@ You will see in the response that the associated ingredients are included in an 
     "preparationTime": "30 minutes",
     "cookingTime": "30 minutes",
     "tips": "You can add vanilla to give a better taste",
-    "image": "http://www.ricenflour.com/wp-content/uploads/2016/01/rnf-chocolatechip-cookie.jpg",
+    "image": "https://raw.githubusercontent.com/luisomoreau/learn-full-stack-javascript-development-for-beginners/master/assets/cookies-sweets-food-dessert-delicious-snack-sugar.jpg",
     "ingredients": [
       {
         "id": "5cac70f64df833a79f59ee65",
