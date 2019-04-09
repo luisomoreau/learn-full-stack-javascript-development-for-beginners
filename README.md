@@ -1,3 +1,5 @@
+[This tutorial is still being written]
+
 # Learn Full-Stack Javascript Development with Loopback and Angular 6 for beginners.
 
 Hello everyone, my name is Louis Moreau, I'm a Full Stack Engineer at [Goodeed](https://www.goodeed.com).
@@ -17,6 +19,8 @@ Backend:
 * How to create your models.
 
 * How to link the models between each other.
+
+* How to use the loopback filters.
 
 * How to deploy you project on [Heroku](https://www.heroku.com/) (or [Dokku](http://dokku.viewdocs.io/dokku/) or [Flynn](https://flynn.io/)).
 
@@ -762,5 +766,10 @@ You will see in the response that the associated ingredients are included in an 
     ]
   }
 ]
+```
+
+If you want to test this request using curl:
+```
+?> curl -X GET --header 'Accept: application/json' 'http://localhost:3000/api/Recipes?filter=%7B%22include%22%3A%22ingredients%22%7D'
 ```
 We won't enter into details about the other filters but I invite you to take a look at the Loopback documentation.
