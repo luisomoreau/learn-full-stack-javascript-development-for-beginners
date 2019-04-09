@@ -159,8 +159,149 @@ At this stage, you should be able to access the Loopback Explorer to see the gen
 
 Note that because you chose to create an "api-server" project, loopback created for you an API including a User model and an authentication method.
 
+#### Typescript (optionnal)
 
-#### Loopback MongoDB connector:
+Just before seeing the database and the models, I'll pause this tutorial for the ones interested in using Loopback with Typescript.
+I won't be able to explain all the benefits of Typescript in this tutorial but I'll just quote [Paul Dixon](https://stackoverflow.com/users/6521/paul-dixon)'s answer on Stack Overflow:
+
+> [TypeScript](http://www.typescriptlang.org/) is a superset of JavaScript which primarily provides optional static typing, classes and interfaces. One of the big benefits is to enable IDEs to provide a richer environment for spotting common errors as you type the code.
+
+> To get an idea of what I mean, watch [Microsoft's introductory video](http://channel9.msdn.com/posts/Anders-Hejlsberg-Introducing-TypeScript) on the language.
+
+> For a large JavaScript project, adopting TypeScript might result in more robust software, while still being deployable where a regular JavaScript application would run.
+
+> It is open source, but you only get the clever Intellisense as you type if you use a supported IDE. Initially, this was only Microsoft's Visual Studio (also noted in blog post from [Miguel de Icaza](http://tirania.org/blog/archive/2012/Oct-01.html)). These days, [other IDEs offer TypeScript support too](https://github.com/Microsoft/TypeScript/wiki/TypeScript-Editor-Support).
+
+> Are there other technologies like it?
+There's [CoffeeScript](http://coffeescript.org/), but that really serves a different purpose. IMHO, CoffeeScript provides readability for humans, but TypeScript also provides deep readability for tools through its optional static typing (see [this recent blog post](http://www.hanselman.com/blog/WhyDoesTypeScriptHaveToBeTheAnswerToAnything.aspx) for a little more critique). There's also [Dart](http://en.wikipedia.org/wiki/Dart_%28programming_language%29) but that's a full on replacement for JavaScript (though it [can produce JavaScript code](http://www.dartlang.org/docs/dart-up-and-running/contents/ch04-tools-dart2js.html)).
+
+> Example
+As an example, here's some TypeScript (you can play with this in the [TypeScript Playground](http://www.typescriptlang.org/Playground/))
+> ```
+class Greeter {
+    greeting: string;
+    constructor (message: string) {
+        this.greeting = message;
+    }
+    greet() {
+        return "Hello, " + this.greeting;
+    }
+}
+```
+And here's the JavaScript it would produce
+> ```
+var Greeter = (function () {
+    function Greeter(message) {
+        this.greeting = message;
+    }
+    Greeter.prototype.greet = function () {
+        return "Hello, " + this.greeting;
+    };
+    return Greeter;
+})();
+```
+
+> Notice how the TypeScript defines the type of member variables and class method parameters. This is removed when translating to JavaScript, but used by the IDE and compiler to spot errors, like passing a numeric type to the constructor.
+
+> It's also capable of inferring types which aren't explicitly declared, for example, it would determine the greet() method returns a string.
+
+> Debugging Typescript
+Many browsers and IDEs offer direct debugging support through sourcemaps. See this Stack Overflow question for more details: [Debugging TypeScript code with Visual Studio](https://stackoverflow.com/questions/12711826/debugging-typescript-code-with-visual-studio).
+
+Source: [https://stackoverflow.com/questions/12694530/what-is-typescript-and-why-would-i-use-it-in-place-of-javascript](https://stackoverflow.com/questions/12694530/what-is-typescript-and-why-would-i-use-it-in-place-of-javascript)
+
+In short, using TypeScript avoid making many mistakes while writting your code, you can code faster and have a better understanding of the code produced by you and others.
+
+I wrote few month ago a [Loopback TypeScript Boilerplate](https://github.com/luisomoreau/loopback3-typescript-boilerplate) if you want to use it. Otherwise, just follow the next steps:
+
+* Install @types/node using npm:
+```
+?> npm install --save @types/node
+?> npm install --save @mean-expert/boot-script
+?> npm install --save @mean-expert/model
+?> npm install --save ts-node
+?> npm install --save typescript
+?> npm install --save copyfiles
+```
+or just replace your package.json file by this one:
+```
+{
+  "name": "recipes",
+  "author": "Louis Moreau",
+  "version": "1.0.0",
+  "main": "server/server.js",
+  "engines": {
+    "node": ">=8.12.0",
+    "npm": ">=6.4.1"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "start": "node .",
+    "posttest": "npm run lint",
+    "compile": "tsc && copyfiles \"server/**/*.json\" build/server -u 1"
+  },
+  "dependencies": {
+    "@mean-expert/boot-script": "^1.0.0",
+    "@mean-expert/model": "^1.0.9",
+    "@types/node": "^11.13.2",
+    "compression": "^1.0.3",
+    "copyfiles": "^2.1.0",
+    "cors": "^2.5.2",
+    "helmet": "^3.10.0",
+    "loopback": "^3.22.0",
+    "loopback-boot": "^2.6.5",
+    "loopback-component-explorer": "^6.2.0",
+    "loopback-connector-mongodb": "^3.9.2",
+    "serve-favicon": "^2.0.1",
+    "strong-error-handler": "^3.0.0",
+    "ts-node": "^7.0.1",
+    "typescript": "^3.1.4"
+  },
+  "devDependencies": {
+    "eslint": "^3.17.1",
+    "eslint-config-loopback": "^8.0.0"
+  },
+  "repository": {
+    "type": "",
+    "url": ""
+  },
+  "license": "UNLICENSED",
+  "description": "recipes"
+}
+```
+
+
+* Add the following file at the backend root:
+backend/tsconfig.json:
+```
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+    "types": [
+      "node"
+    ]
+  }
+}
+```
+
+* Finally, edit your server.js and add the following line under 'use strict':
+```
+require('ts-node/register');
+```
+
+
+
+#### Database: Loopback MongoDB connector:
 
 Before creating a model, we will add the loopback-connector-mongodb npm package to attach our future model to a mongo database:
 Go in your application root repository and run:
