@@ -553,6 +553,13 @@ Enter an empty property name when done.
 
 Let's add another Recipe property.
 Enter an empty property name when done.
+? Property name: quantity
+? Property type: number
+? Required? Yes
+? Default value[leave blank for none]:
+
+Let's add another Recipe property.
+Enter an empty property name when done.
 ? Property name: units
 ? Property type: string
 ? Required? No
@@ -612,6 +619,9 @@ Now open back our Recipe and Ingredient models:
     },
     "name": {
       "type": "string"
+    },
+    "quantity": {
+      "type": "number"
     },
     "unit": {
       "type": "string"
@@ -686,3 +696,30 @@ How does it look in the explorer?
 ![Relation 1](assets/lb-explorer-recipe-with-relation.png)
 
 ![Relation 2](assets/lb-explorer-ingredient-with-relation.png)
+
+As you can see, in the Ingredient model, a new property appeared: recipeId, which is the foreign key.
+
+To create a new ingredient linked with the cookie recipe, we need to add the recipe id in the ingredient property. In my case it will be:
+
+```
+{
+  "name": "Eggs",
+  "quantity": 2,
+  "unit": "piece",
+  "recipeId": "5cac667fbcd943a6690cbf3f"
+}
+```
+![Create Ingredient eggs](assets/lb-explorer-create-ingredient-eggs.png)
+
+Note that in the models (ingredient.json for example), you have an option:
+```
+"idInjection": true,
+```
+This option generates an ID, you can set it to false if you want to set manually the IDs but I would not recommend it.
+
+#### Loopback filters
+
+You can find all the needed documentation about Loopback filters here:
+[https://loopback.io/doc/en/lb3/Querying-data.html](https://loopback.io/doc/en/lb3/Querying-data.html)
+
+![loopback filters](assets/loopback-filters.png)
