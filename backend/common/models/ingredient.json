@@ -1,0 +1,30 @@
+{
+  "name": "Ingredient",
+  "plural": "Ingredients",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "unit": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "recipe": {
+      "type": "belongsTo",
+      "model": "Recipe",
+      "foreignKey": ""
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

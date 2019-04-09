@@ -101,6 +101,7 @@ $> brew install mongodb
 Install MongoDB Community Edition on Windows systems and optionally start MongoDB as a Windows service:
 [https://docs.mongodb.com/v3.6/tutorial/install-mongodb-on-windows/](https://docs.mongodb.com/v3.6/tutorial/install-mongodb-on-windows/).
 
+### Loopback
 #### Install Loopback
 
 Install Loopback globally (the -g option will install the npm - Node Packet Manager - globally, it means, the loopback command  "lb" will be accessible anywhere in your system).
@@ -154,7 +155,8 @@ At this stage, you should be able to access the Loopback Explorer to see the gen
 
 Note that because you chose to create an "api-server" project, loopback created for you an API including a User model and an authentication method.
 
-Loopback MongoDB connector:
+
+#### Loopback MongoDB connector:
 
 Before creating a model, we will add the loopback-connector-mongodb npm package to attach our future model to a mongo database:
 Go in your application root repository and run:
@@ -163,7 +165,7 @@ npm install loopback-connector-mongodb --save
 ```
 The --save parameter will save in the package.json file the instruction to install this package when you will need to install all the dependencies using npm install.
 
-Now that the package is installed, we will need to configure the mongo datasource:
+Now that the package is installed, we will need to configure the mongo datasource (server/datasources.json):
 Go to your server repository and add the mongodb datasource as below:
 
 ```
@@ -186,7 +188,7 @@ Go to your server repository and add the mongodb datasource as below:
 }
 ```
 
-Generate a model:
+### Generate a model:
 
 ```
 lb model <ModelName>
@@ -224,6 +226,7 @@ Example with the Recipe model:
 ```
 $> lb model Recipe
 ```
+By convention, we name the model starting with a capital letter.
 
 ```
 ? Select the datasource to attach undefined to: mongo (mongodb)
@@ -313,4 +316,344 @@ Open the explorer [http://localhost:3000/explorer](http://localhost:3000/explore
 
 ![Explorer with Recipes](assets/lb-explorer-recipes.png)
 
-Then, change manually the extension .js to .ts in common/models my-model.js and copy paste the code in example.ts (don't forget to remplace Example by your model name in lines 25 and 71).
+To check if it works you can run:
+```
+$> curl http://localhost:3000/api/Recipes/
+// the response should be an empty array: []
+```
+
+Now try to POST a cookies recipe:
+
+![POST Cookies 1](assets/lb-explorer-post-cookies-1.png)
+![POST Cookies 1](assets/lb-explorer-post-cookies-2.png)
+
+Run again:
+```
+$> curl http://localhost:3000/api/Recipes/
+// the response should be an array: [{"id":"5c409091fa17f2c9f80d0604","name":"Cookies","description":"Homemade cookies","guideLines":"Preheat the oven to 200°C. Mix together the two sugars. Mix the softened butter into the sugar in globs. Mix in the eggs one at a time. Measure and mix in the vanilla, salt, and baking soda. Add
+the flour all at once.","preparationTime":"30 minutes","cookingTime":"30 minutes","tips":"You can add vanilla to give a better taste","image":"http://www.ricenflour.com/wp-content/uploads/2016/01/rnf-chocolatechip-cookie.jpg"}]
+```
+
+Here we go! We have our first model working!
+However, we still need to add our ingredients, change few things in our Recipe model, etc...
+
+Let's open our Recipe model in common/models/recipe.json and see how it looks.
+
+```
+{
+  "name": "Recipe",
+  "plural": "Recipes",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "string"
+    },
+    "guideLines": {
+      "type": "string"
+    },
+    "preparationTime": {
+      "type": "string"
+    },
+    "cookingTime": {
+      "type": "string"
+    },
+    "tips": {
+      "type": "string"
+    },
+    "image": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}
+```
+
+I'm not very happy with the guideLines property. I think it would be better to have an array of strings so let's change it:
+
+Replace:
+```
+"guideLines": {
+  "type": "string"
+},
+```
+By:
+```
+"guideLines": ["string"],
+```
+
+Don't worry about the relations and acls fields by now, we will have a look at it after.
+As you see, we can change anything within the code so don't worry if you need to add more properties or if you want to change their types.
+
+Just before adding the ingredient model, let's have a look at the server/model-config.json file:
+
+```
+{
+  "_meta": {
+    "sources": [
+      "loopback/common/models",
+      "loopback/server/models",
+      "../common/models",
+      "./models"
+    ],
+    "mixins": [
+      "loopback/common/mixins",
+      "loopback/server/mixins",
+      "../common/mixins",
+      "./mixins"
+    ]
+  },
+  "User": {
+    "dataSource": "db"
+  },
+  "AccessToken": {
+    "dataSource": "db",
+    "public": false
+  },
+  "ACL": {
+    "dataSource": "db",
+    "public": false
+  },
+  "RoleMapping": {
+    "dataSource": "db",
+    "public": false,
+    "options": {
+      "strictObjectIDCoercion": true
+    }
+  },
+  "Role": {
+    "dataSource": "db",
+    "public": false
+  },
+  "Recipe": {
+    "dataSource": "mongo",
+    "public": true
+  }
+}
+```
+
+If you want to add manually another model or change its connector, you can do it in this file.
+For example, I want the User and AccessToken models to use mongodb instead of the memory connector. Let's change this:
+
+```
+{
+  "_meta": {
+    "sources": [
+      "loopback/common/models",
+      "loopback/server/models",
+      "../common/models",
+      "./models"
+    ],
+    "mixins": [
+      "loopback/common/mixins",
+      "loopback/server/mixins",
+      "../common/mixins",
+      "./mixins"
+    ]
+  },
+  "User": {
+    "dataSource": "mongo"
+  },
+  "AccessToken": {
+    "dataSource": "mongo",
+    "public": false
+  },
+  "ACL": {
+    "dataSource": "db",
+    "public": false
+  },
+  "RoleMapping": {
+    "dataSource": "db",
+    "public": false,
+    "options": {
+      "strictObjectIDCoercion": true
+    }
+  },
+  "Role": {
+    "dataSource": "db",
+    "public": false
+  },
+  "Recipe": {
+    "dataSource": "mongo",
+    "public": true
+  }
+}
+```
+
+#### Relations
+
+Now we want to add a relation between ingredients and a recipe. First, we will create our ingredient model:
+
+```
+$> lb model Ingredient
+```
+
+```
+? Select the datasource to attach undefined to: mongo (mongodb)
+? Select model's base class PersistedModel
+? Expose Recipe via the REST API? Yes
+? Custom plural form (used to build REST URL): Ingredients
+? Common model or server only? common
+Let's add some Recipe properties now.
+
+Enter an empty property name when done.
+? Property name: id
+? Property type: string
+? Required? No
+? Default value[leave blank for none]:
+
+Let's add another Recipe property.
+Enter an empty property name when done.
+? Property name: name
+? Property type: string
+? Required? Yes
+? Default value[leave blank for none]:
+
+Let's add another Recipe property.
+Enter an empty property name when done.
+? Property name: units
+? Property type: string
+? Required? No
+? Default value[leave blank for none]:
+```
+
+Ok, now we have both our Recipe and Ingredient models. We need to link them.
+
+An ingredient will belong to a recipe:
+
+```
+$> lb relation
+```
+
+```
+? Select the model to create the relationship from: Ingredient
+? Relation type: belongs to
+? Choose a model to create a relationship with: Recipe
+? Enter the property name for the relation: recipe
+? Optionally enter a custom foreign key:
+? Allow the relation to be nested in REST APIs: No
+? Disable the relation from being included: No
+```
+Some options are available, just follow the prompt right now.
+
+A recipe will have many ingredients:
+
+```
+$> lb relation
+```
+
+```
+? Select the model to create the relationship from: Recipe
+? Relation type: has many
+? Choose a model to create a relationship with: Ingredient
+? Enter the property name for the relation: ingredients
+? Optionally enter a custom foreign key:
+? Require a through model? No
+? Allow the relation to be nested in REST APIs: No
+? Disable the relation from being included: No
+```
+
+Now open back our Recipe and Ingredient models:
+
+```
+{
+  "name": "Ingredient",
+  "plural": "Ingredients",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "unit": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "recipe": {
+      "type": "belongsTo",
+      "model": "Recipe",
+      "foreignKey": ""
+    }
+  },
+  "acls": [],
+  "methods": {}
+}
+```
+
+```
+{
+  "name": "Recipe",
+  "plural": "Recipes",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "string"
+    },
+    "guideLines": {
+      "type": [
+        "string"
+      ]
+    },
+    "preparationTime": {
+      "type": "string"
+    },
+    "cookingTime": {
+      "type": "string"
+    },
+    "tips": {
+      "type": "string"
+    },
+    "image": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "ingredients": {
+      "type": "hasMany",
+      "model": "Ingredient",
+      "foreignKey": ""
+    }
+  },
+  "acls": [],
+  "methods": {}
+}
+```
+
+How does it look in the explorer?
+
+![Relation 1](assets/lb-explorer-recipe-with-relation.png)
+
+![Relation 2](assets/lb-explorer-ingredient-with-relation.png)
