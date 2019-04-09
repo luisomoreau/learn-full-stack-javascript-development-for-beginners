@@ -159,7 +159,7 @@ At this stage, you should be able to access the Loopback Explorer to see the gen
 
 Note that because you chose to create an "api-server" project, loopback created for you an API including a User model and an authentication method.
 
-#### Typescript (optionnal)
+#### Typescript
 
 Just before seeing the database and the models, I'll pause this tutorial for the ones interested in using Loopback with Typescript.
 I won't be able to explain all the benefits of Typescript in this tutorial but I'll just quote [Paul Dixon](https://stackoverflow.com/users/6521/paul-dixon)'s answer on Stack Overflow:
@@ -212,7 +212,9 @@ Source: [https://stackoverflow.com/questions/12694530/what-is-typescript-and-why
 
 In short, using TypeScript avoid making many mistakes while writting your code, you can code faster and have a better understanding of the code produced by you and others.
 
-I wrote few month ago a [Loopback TypeScript Boilerplate](https://github.com/luisomoreau/loopback3-typescript-boilerplate) if you want to use it. Otherwise, just follow the next steps:
+I wrote few month ago a [Loopback TypeScript Boilerplate](https://github.com/luisomoreau/loopback3-typescript-boilerplate). If you want to use it, it is a Loopback application with a User model (like the application we've just created) but it has TypeScript already configured.
+
+Otherwise, I will show you have to configure TypeScript with our new application. Just follow the next steps:
 
 * Install @types/node using npm:
 ```
@@ -221,7 +223,6 @@ I wrote few month ago a [Loopback TypeScript Boilerplate](https://github.com/lui
 ?> npm install --save @mean-expert/model
 ?> npm install --save ts-node
 ?> npm install --save typescript
-?> npm install --save copyfiles
 ```
 or just replace your package.json file by this one:
 ```
@@ -245,7 +246,6 @@ or just replace your package.json file by this one:
     "@mean-expert/model": "^1.0.9",
     "@types/node": "^11.13.2",
     "compression": "^1.0.3",
-    "copyfiles": "^2.1.0",
     "cors": "^2.5.2",
     "helmet": "^3.10.0",
     "loopback": "^3.22.0",
@@ -269,6 +269,7 @@ or just replace your package.json file by this one:
   "description": "recipes"
 }
 ```
+If you copied the package.json, remove you node_modules/ folder and run ```npm install```
 
 
 * Add the following file at the backend root:
@@ -299,7 +300,8 @@ backend/tsconfig.json:
 require('ts-node/register');
 ```
 
-
+All set, we are ready to continue the tutorial.
+In this Typescript part, I do not expect you to understand everything we did, it is a more advanced level.
 
 #### Database: Loopback MongoDB connector:
 
