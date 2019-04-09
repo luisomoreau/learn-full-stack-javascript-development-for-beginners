@@ -14,7 +14,8 @@
     ]
   },
   "User": {
-    "dataSource": "mongo"
+    "dataSource": "db",
+    "public": false
   },
   "AccessToken": {
     "dataSource": "mongo",
@@ -40,6 +41,10 @@
     "public": true
   },
   "Ingredient": {
+    "dataSource": "mongo",
+    "public": true
+  },
+  "user": {
     "dataSource": "mongo",
     "public": true
   }

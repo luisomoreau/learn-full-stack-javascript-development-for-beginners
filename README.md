@@ -22,11 +22,10 @@ Backend:
 
 * How to use the loopback filters.
 
+* How to secure access to your API with ACLs.
+
 * How to deploy you project on [Heroku](https://www.heroku.com/) (or [Dokku](http://dokku.viewdocs.io/dokku/) or [Flynn](https://flynn.io/)).
 
-* How to secure access to your API.
-
-* How to add an authentication layer (using [PassportJS](http://www.passportjs.org/)).
 
 Frontend:
 
@@ -662,6 +661,12 @@ If you want to add the cookies recipes with and array of guideLines, you can use
 "image":"https://raw.githubusercontent.com/luisomoreau/learn-full-stack-javascript-development-for-beginners/master/assets/cookies-sweets-food-dessert-delicious-snack-sugar.jpg"}
 ```
 
+Restart the API to see the changes in the Explorer:
+(ctrl + c to exit)
+```
+npm start
+```
+
 
 #### Relations
 
@@ -834,6 +839,13 @@ Now open back our Recipe and Ingredient models:
 
 How does it look in the explorer?
 
+Restart the API to see the changes in the Explorer:
+(ctrl + c to exit)
+```
+npm start
+```
+
+
 ![Relation 1](assets/lb-explorer-recipe-with-relation.png)
 
 ![Relation 2](assets/lb-explorer-ingredient-with-relation.png)
@@ -910,3 +922,274 @@ If you want to test this request using curl:
 ?> curl -X GET --header 'Accept: application/json' 'http://localhost:3000/api/Recipes?filter=%7B%22include%22%3A%22ingredients%22%7D'
 ```
 We won't enter into details about the other filters but I invite you to take a look at the Loopback documentation.
+
+#### Secure access to your API with ACLs:
+
+By default, Loopback comes with a User model. The good practice is to create a user model (the only one starting with a lower case). The user model will inherit the User model:
+
+Create this user model:
+```
+?> lb model users
+```
+
+```
+? Enter the model name: user
+? Select the datasource to attach user to: mongo (mongodb)
+? Select model's base class User
+? Expose user via the REST API? Yes
+? Custom plural form (used to build REST URL): users
+? Common model or server only? common
+Let's add some user properties now.
+
+Enter an empty property name when done.
+
+? Property name:
+```
+
+Remove the User model from being public in server/model-config.json
+```
+{
+  "_meta": {
+    "sources": [
+      "loopback/common/models",
+      "loopback/server/models",
+      "../common/models",
+      "./models"
+    ],
+    "mixins": [
+      "loopback/common/mixins",
+      "loopback/server/mixins",
+      "../common/mixins",
+      "./mixins"
+    ]
+  },
+  "User": {
+    "dataSource": "db",
+    "public": false
+  },
+  "AccessToken": {
+    "dataSource": "mongo",
+    "public": false
+  },
+  "ACL": {
+    "dataSource": "db",
+    "public": false
+  },
+  "RoleMapping": {
+    "dataSource": "db",
+    "public": false,
+    "options": {
+      "strictObjectIDCoercion": true
+    }
+  },
+  "Role": {
+    "dataSource": "db",
+    "public": false
+  },
+  "Recipe": {
+    "dataSource": "mongo",
+    "public": true
+  },
+  "Ingredient": {
+    "dataSource": "mongo",
+    "public": true
+  },
+  "user": {
+    "dataSource": "mongo",
+    "public": true
+  }
+}
+```
+
+Let's add a relation between the Recipe and the user models:
+
+* One Recipe belongs to a user:
+```
+?> lb relations
+```
+
+```
+? Select the model to create the relationship from: Recipe
+? Relation type: belongs to
+? Choose a model to create a relationship with: user
+? Enter the property name for the relation: user
+? Optionally enter a custom foreign key:
+? Allow the relation to be nested in REST APIs: No
+? Disable the relation from being included: No
+```
+
+* One user has many Recipes:
+```
+?> lb relations
+```
+
+```
+? Select the model to create the relationship from: user
+? Relation type: has many
+? Choose a model to create a relationship with: Recipe
+? Enter the property name for the relation: recipes
+? Optionally enter a custom foreign key:
+? Require a through model? No
+? Allow the relation to be nested in REST APIs: No
+? Disable the relation from being included: No
+```
+
+Now we will deny all requests and open them step by step:
+
+```
+?> lb acl
+```
+
+```
+? Select the model to apply the ACL entry to: (all existing models)
+? Select the ACL scope: All methods and properties
+? Select the access type: All (match all types)
+? Select the role All users
+? Select the permission to apply Explicitly deny access
+```
+
+Go back in the explorer and try to Get the recipes, you will see the following error:
+```
+{
+  "error": {
+    "statusCode": 401,
+    "name": "Error",
+    "message": "Authorization Required",
+    "code": "AUTHORIZATION_REQUIRED",
+    "stack": "Error: Authorization Required ..."
+  }
+}
+```
+
+Open the common/models/recipe.json file, you will see that the acls have been added:
+```
+"acls": [
+  {
+    "accessType": "*",
+    "principalType": "ROLE",
+    "principalId": "$everyone",
+    "permission": "DENY"
+  }
+],
+```
+
+Open the READ permission for the models Recipe and Ingredient:
+
+```
+?> lb acl
+```
+
+```
+? Select the model to apply the ACL entry to: Recipe
+? Select the ACL scope: All methods and properties
+? Select the access type: Read
+? Select the role All users
+? Select the permission to apply Explicitly grant access
+```
+
+Do the same for the Ingredient model:
+```
+?> lb acl
+```
+
+```
+? Select the model to apply the ACL entry to: Ingredient
+? Select the ACL scope: All methods and properties
+? Select the access type: Read
+? Select the role All users
+? Select the permission to apply Explicitly grant access
+```
+
+Now we will set a WRITE permission for the owner of the recipe:
+```
+?> lb acl
+```
+
+```
+? Select the model to apply the ACL entry to: Recipe
+? Select the ACL scope: All methods and properties
+? Select the access type: Write
+? Select the role The user owning the object
+? Select the permission to apply Explicitly grant access
+```
+This WRITE permission will allow the owner of the recipe to udpate it or to delete it.
+
+Restart the API to see the changes in the Explorer:
+(ctrl + c to exit)
+```
+npm start
+```
+
+Now you can read again all the recipes. However, you cannot create a new one. Let's add another ACL on the property create:
+```
+?> lb acl
+```
+
+```
+? Select the model to apply the ACL entry to: Recipe
+? Select the ACL scope: A single method
+? Enter the method name create
+? Select the role Any authenticated user
+? Select the permission to apply Explicitly grant access
+```
+
+Let's do the same for the Ingredient model:
+```
+?> lb acl
+```
+
+```
+? Select the model to apply the ACL entry to: Ingredient
+? Select the ACL scope: A single method
+? Enter the method name create
+? Select the role Any authenticated user
+? Select the permission to apply Explicitly grant access
+```
+
+Restart the API and try to add a new recipe.
+It won't work because only authenticated users can.
+
+So let's add a new user.
+
+In the explorer go under /users, choose POST and add your credentials:
+```
+{
+  "email": "louis@luisomoreau.com",
+  "password": "mysuperpassword"
+}
+```
+![create new user](assets/lb-explorer-create-user.png)
+
+Then use the login function under /users/login and add your credentials:
+
+![login](assets/lb-explorer-login.png)
+
+The response will come with an id, this is the AccessToken to authenticate requests.
+Copy and past it in the accessToken input field in the header:
+
+![set accessToken in explorer](assets/lb-explorer-accessToken.png)
+
+Now you can create a new recipe!
+
+Post again the same recipe as before, just change the Title and do not forget to add your userId property if you want to be able to edit it after. If you forget it, the relation between the Recipe and the user won't be made, thus there will be no owner of this recipe. Consequently, the permission won't be granted:
+```
+{
+  "name": "Super Cookies",
+  "description": "Homemade cookies",
+  "guideLines": [
+    "Preheat the oven to 200°C.",
+    "Mix together the two sugars.",
+    "Mix the softened butter into the sugar in globs.",
+    "Mix in the eggs one at a time.",
+    "Measure and mix in the vanilla, salt, and baking soda.",
+    "Add the flour all at once."
+  ],
+  "preparationTime": "30 minutes",
+  "cookingTime": "30 minutes",
+  "tips": "You can add vanilla to give a better taste",
+  "image": "https://raw.githubusercontent.com/luisomoreau/learn-full-stack-javascript-development-for-beginners/master/assets/cookies-sweets-food-dessert-delicious-snack-sugar.jpg",
+"userId": "5cacb7df63048aac3b118803"
+}
+```
+
+However
