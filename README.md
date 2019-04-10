@@ -28,8 +28,6 @@ Backend:
 
 * How to create a custom API endpoint.
 
-* How to deploy you project on [Heroku](https://www.heroku.com/) (or [Dokku](http://dokku.viewdocs.io/dokku/) or [Flynn](https://flynn.io/)).
-
 
 Frontend:
 
@@ -38,6 +36,11 @@ Frontend:
 * How to create an Angular project.
 
 * How to generate the services using the Loopback SDK Builder tool.
+
+Deployment:
+
+* How to deploy you project on [Heroku](https://www.heroku.com/) (or [Dokku](http://dokku.viewdocs.io/dokku/) or [Flynn](https://flynn.io/)).
+
 
 
 ## Backend and public API
