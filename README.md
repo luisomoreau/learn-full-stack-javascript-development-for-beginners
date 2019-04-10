@@ -1,9 +1,9 @@
 [This tutorial is still being written]
 
-# Learn Full-Stack Javascript Development with Loopback and Angular 6 for beginners.
+# Learn Full-Stack Javascript Development with Loopback and Angular 7 for beginners.
 
 Hello everyone, my name is Louis Moreau, I'm a Full Stack Engineer at [Goodeed](https://www.goodeed.com).
-In this tutorial, I'll try to teach you how to create a backend with a public API using Loopback 3 (NodeJS Framework) and a frontend using Angular 6.
+In this tutorial, I'll try to teach you how to create a backend with a public API using Loopback 3 (NodeJS Framework) and a frontend using Angular 7.
 As an example, we will work on a project to manage and display cooking recipes.
 First, we will develop a backend with a public API to create, read, update and delete the recipes.
 Then, we will use Angular 6 to develop a simple website that can display the cooking recipes.
@@ -1443,7 +1443,7 @@ Once our incrementation has been made, we get the last value of our views and we
 Now, try this new API endpoint:
 ![increment views endpoint](assets/lb-explorer-increment-views.png)
 
-If you are wondering what about the ACL at this point, as our Recipe model has a READ permission fir $everyone and the endpoint is a GET request, it is authorized. However, you can add a different permission in the ACL:
+If you are wondering what about the ACL at this point, as our Recipe model has a READ permission for $everyone and the endpoint is a GET request, it is authorized. However, you can add a different permission in the ACL:
 
 ```
 {
@@ -1453,4 +1453,42 @@ If you are wondering what about the ACL at this point, as our Recipe model has a
   "permission": "ALLOW",
   "property": "incrementViews"
 }
+```
+
+We are done for the backend part. Congrat's you now have a functional API!
+In the second part of this tutorial, we'll see how to integrate our API with Angular.
+
+Ready?
+
+## Frontend
+
+![angular](assets/angular.png)
+
+Few words on Angular:
+[Angular](https://angular.io/) is a very complete JS frontend framework to build Progressive Web Apps.
+What I particularly like about Angular are the generators to execute repetitive tasks and its logic. I won't compare the different JS frameworks here but I'd like to let you know that [ReactJS](https://reactjs.org/) and [VueJS](https://vuejs.org/) are also very good frameworks. I'm just more familiar with Angular and I started to use it at its early stage of development.
+
+### Installation
+
+Go back to the project's root and install angular cli globally:
+```
+$> npm install -g @angular/cli
+```
+
+### Generate new Application
+
+Hit:
+
+```
+$> ng new frontend
+```
+
+The prompt will offer different options:
+```
+? Would you like to add Angular routing? Yes
+? Which stylesheet format would you like to use? SCSS   [ http://sass-lang.com/documentation/file.SASS_REFERENCE.html#syntax ]
+CREATE frontend/README.md (1025 bytes)
+CREATE frontend/.editorconfig (246 bytes)
+CREATE frontend/.gitignore (629 bytes)
+...
 ```
