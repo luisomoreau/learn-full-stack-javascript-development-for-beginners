@@ -99,10 +99,13 @@ Install MongoDB Community Edition and required dependencies on Linux:
 * Install on macOS:
 Install MongoDB Community Edition on macOS systems from Homebrew packages or from MongoDB archives.
 The easiest is it you Homebrew:
+
 ```
 $> brew update
 $> brew install mongodb
 ```
+
+
 
 * Install on Windows:
 Install MongoDB Community Edition on Windows systems and optionally start MongoDB as a Windows service:
@@ -138,10 +141,10 @@ Louiss-MacBook-Pro:sources louis$ lb
   empty-server (An empty LoopBack API, without any configured models or datasources)
   hello-world (A project containing a controller, including a single vanilla Message and a single remote method)
   notes (A project containing a basic working example, including a memory database)
-
 ```
 
 Move into the created directory:
+
 ```
 $> cd backend
 ```
@@ -221,11 +224,11 @@ Otherwise, I will show you have to configure TypeScript with our new application
 
 * Install @types/node using npm:
 ```
-?> npm install --save @types/node
-?> npm install --save @mean-expert/boot-script
-?> npm install --save @mean-expert/model
-?> npm install --save ts-node
-?> npm install --save typescript
+$> npm install --save @types/node
+$> npm install --save @mean-expert/boot-script
+$> npm install --save @mean-expert/model
+$> npm install --save ts-node
+$> npm install --save typescript
 ```
 or just replace your package.json file by this one:
 ```
@@ -923,7 +926,7 @@ You will see in the response that the associated ingredients are included in an 
 
 If you want to test this request using curl:
 ```
-?> curl -X GET --header 'Accept: application/json' 'http://localhost:3000/api/Recipes?filter=%7B%22include%22%3A%22ingredients%22%7D'
+$> curl -X GET --header 'Accept: application/json' 'http://localhost:3000/api/Recipes?filter=%7B%22include%22%3A%22ingredients%22%7D'
 ```
 We won't enter into details about the other filters but I invite you to take a look at the Loopback documentation.
 
@@ -933,7 +936,7 @@ By default, Loopback comes with a User model. The good practice is to create a u
 
 Create this user model:
 ```
-?> lb model users
+$> lb model users
 ```
 
 ```
@@ -1009,7 +1012,7 @@ Let's add a relation between the Recipe and the user models:
 
 * One Recipe belongs to a user:
 ```
-?> lb relations
+$> lb relations
 ```
 
 ```
@@ -1024,7 +1027,7 @@ Let's add a relation between the Recipe and the user models:
 
 * One user has many Recipes:
 ```
-?> lb relations
+$> lb relations
 ```
 
 ```
@@ -1041,7 +1044,7 @@ Let's add a relation between the Recipe and the user models:
 Now we will deny all requests and open them step by step:
 
 ```
-?> lb acl
+$> lb acl
 ```
 
 ```
@@ -1080,7 +1083,7 @@ Open the common/models/recipe.json file, you will see that the acls have been ad
 Open the READ permission for the models Recipe and Ingredient:
 
 ```
-?> lb acl
+$> lb acl
 ```
 
 ```
@@ -1093,7 +1096,7 @@ Open the READ permission for the models Recipe and Ingredient:
 
 Do the same for the Ingredient model:
 ```
-?> lb acl
+$> lb acl
 ```
 
 ```
@@ -1106,7 +1109,7 @@ Do the same for the Ingredient model:
 
 Now we will set a WRITE permission for the owner of the recipe:
 ```
-?> lb acl
+$> lb acl
 ```
 
 ```
@@ -1126,7 +1129,7 @@ npm start
 
 Now you can read again all the recipes. However, you cannot create a new one. Let's add another ACL on the property create:
 ```
-?> lb acl
+$> lb acl
 ```
 
 ```
@@ -1139,7 +1142,7 @@ Now you can read again all the recipes. However, you cannot create a new one. Le
 
 Let's do the same for the Ingredient model:
 ```
-?> lb acl
+$> lb acl
 ```
 
 ```
@@ -1419,6 +1422,7 @@ incrementViews(id: string, next: Function): void {
   );
 }
 ```
+
 We'll take some time to explain the code above:
 The arguments id is the id of the recipe that we passed as an argument in the request.
 The second argument next is the callback function. This next function is like next(error, data) and will return the error or the data in response of the API call.
@@ -1427,7 +1431,23 @@ this.model is the current model we are using, the Recipe model.
 
 updateAll is a function belonging to the Recipe Model(and globally all the Persisted Models). See [here](http://apidocs.loopback.io/loopback/#persistedmodel-updateall) for more information.
 
-Here we use the $inc method and as it is a MongoDB function, we had to specify ```{allowExtendedOperators: true}```. We are using this MongoDB function in case many requests arrive at the same time, the incrementation will be made. Otherwise if we were using something like get the model, increment the property and save the model, we could loose some data as many requests can be performed at the same time.
+Here we use the "$inc" method and as it is a MongoDB function, we had to specify ```{allowExtendedOperators: true}```. We are using this MongoDB function in case many requests arrive at the same time, the incrementation will be made. Otherwise if we were using something like get the model, increment the property and save the model, we could loose some data as many requests can be performed at the same time.
 
-Then this function updateAll expects a callback, which is our ```(err: any, result: any) => {}```
+Then this function updateAll expects a callback, which is our ```(err: any, result: any) => {} ```
+
 Once our incrementation has been made, we get the last value of our views and we pass it back to the callback function (our next function).
+
+Now, try this new API endpoint:
+![increment views endpoint](assets/lb-explorer-increment-views.png)
+
+If you are wondering what about the ACL at this point, as our Recipe model has a READ permission fir $everyone and the endpoint is a GET request, it is authorized. However, you can add a different permission in the ACL:
+
+```
+{
+  "accessType": "EXECUTE",
+  "principalType": "ROLE",
+  "principalId": "$everyone",
+  "permission": "ALLOW",
+  "property": "incrementViews"
+}
+```
