@@ -24,6 +24,10 @@ Backend:
 
 * How to secure access to your API with ACLs.
 
+* How to add custom logic to your models.
+
+* How to create a custom API endpoint.
+
 * How to deploy you project on [Heroku](https://www.heroku.com/) (or [Dokku](http://dokku.viewdocs.io/dokku/) or [Flynn](https://flynn.io/)).
 
 
@@ -1171,7 +1175,9 @@ Copy and past it in the accessToken input field in the header:
 
 Now you can create a new recipe!
 
-Post again the same recipe as before, just change the Title and do not forget to add your userId property if you want to be able to edit it after. If you forget it, the relation between the Recipe and the user won't be made, thus there will be no owner of this recipe. Consequently, the permission won't be granted:
+Post again the same recipe as before, just change the name and ** do not forget to add your userId property if you want to be able to edit it after.**
+
+If you forget it, the relation between the Recipe and the user won't be made, thus there will be no owner of this recipe. Consequently, the permission won't be granted:
 ```
 {
   "name": "Super Cookies",
@@ -1188,8 +1194,240 @@ Post again the same recipe as before, just change the Title and do not forget to
   "cookingTime": "30 minutes",
   "tips": "You can add vanilla to give a better taste",
   "image": "https://raw.githubusercontent.com/luisomoreau/learn-full-stack-javascript-development-for-beginners/master/assets/cookies-sweets-food-dessert-delicious-snack-sugar.jpg",
-"userId": "5cacb7df63048aac3b118803"
+  "userId": "5cacb7df63048aac3b118803"
 }
 ```
 
-However
+#### Add custom logic to your models
+
+Because it is annoying to add the userId to the recipes, we will add it in a beforeSave hook. The idea is to go an check the associated user to the accessToken and add it the recipe.
+
+Open the common/models/recipe.ts file:
+
+```
+import {Model} from '@mean-expert/model';
+/**
+ * @module recipe
+ * @description
+ **/
+@Model({
+  hooks: {
+    access: {name: 'access', type: 'operation'},
+    persist: {name: 'persist', type: 'operation'},
+    beforeSave: {name: 'before save', type: 'operation'},
+    afterSave: {name: 'after save', type: 'operation'},
+    beforeDelete: {name: 'before delete', type: 'operation'},
+    afterDelete: {name: 'after delete', type: 'operation'},
+    beforeMyRemote: {name: 'myRemote', type: 'beforeRemote'},
+    afterMyRemote: {name: 'myRemote', type: 'afterRemote'},
+  },
+  remotes: {
+    myRemote: {
+      returns: {arg: 'result', type: 'array'},
+      http: {path: '/my-remote', verb: 'get'}
+    }
+  }
+})
+
+class Recipe {
+  constructor(public model: any) {
+  }
+
+  access(ctx: any, next: Function): void {
+    console.log('recipe: access');
+    next();
+  }
+
+  persist(ctx: any, next: Function): void {
+    console.log('recipe: persist');
+    next();
+  }
+
+  beforeSave(ctx: any, next: Function): void {
+    console.log('recipe: before Save');
+    next();
+  }
+
+  afterSave(ctx: any, next: Function): void {
+    console.log('recipe: before Save');
+    next();
+  }
+
+  beforeDelete(ctx: any, next: Function): void {
+    console.log('recipe: before Delete');
+    next();
+  }
+
+  afterDelete(ctx: any, next: Function): void {
+    console.log('recipe: after Delete');
+    next();
+  }
+
+  beforeMyRemote(ctx: any, next: Function) {
+    console.log('recipe: before myRemote');
+    next();
+  }
+
+  myRemote(next: Function): void {
+    console.log('recipe: myRemote');
+    this.model.find(next);
+  }
+
+  afterMyRemote(ctx: any, next: Function) {
+    console.log('recipe: after myRemote');
+    next();
+  }
+
+}
+
+module.exports = Recipe;
+```
+
+You will see the beforeSave function has two arguments, the context and a callback.
+If you log the ctx, it has many properties.
+
+We will be interested in the ctx.options.accessToken object, isNewInstance (to differenciate updates from creates) and the instance object (which contains the data we want to save):
+
+```
+instance:
+   { name: 'Super Cookies',
+     description: 'Homemade cookies',
+     guideLines:
+      List [
+        'Preheat the oven to 200°C.',
+        'Mix together the two sugars.',
+        'Mix the softened butter into the sugar in globs.',
+        'Mix in the eggs one at a time.',
+        'Measure and mix in the vanilla, salt, and baking soda.',
+        'Add the flour all at once.' ],
+
+     preparationTime: '30 minutes',
+     cookingTime: '30 minutes',
+     tips: 'You can add vanilla to give a better taste',
+     image:
+      'https://raw.githubusercontent.com/luisomoreau/learn-full-stack-javascript-development-for-beginners/master/assets/cookies-sweets-food-dessert-delicious-snack-sugar.jpg' },
+  isNewInstance: true,
+  hookState: {},
+  options:
+   { prohibitHiddenPropertiesInQuery: true,
+     maxDepthOfQuery: 12,
+     maxDepthOfData: 32,
+     accessToken:
+      { ttl: 1209600,
+        created: 2019-04-09T15:23:24.176Z,
+        userId: 5cacb7df63048aac3b118803,
+        id:
+         'H434ZXyRQTxoybvUXaoyCeJKEknBQkcm6aRevi48FYCgW0Hd76J0Jmq8da3xcG5F' },
+     authorizedRoles: { '$everyone': true, '$authenticated': true }
+     }
+   }
+```
+
+So, modify the beforeSave function to add this:
+
+```
+beforeSave(ctx: any, next: Function): void {
+  // console.log('recipe: before Save', ctx);
+  if(ctx.isNewInstance){
+    ctx.instance.userId = ctx.options.accessToken.userId;
+  }
+  next();
+}
+```
+
+Reload the API and try to post a new recipe without the userId parameter, you will see in the response that the userId has been added based on your accessToken.
+
+Note that you can delete the unwanted hooks if you don't use them.
+
+Also note that you could use mixins to perform this operation but we won't see them in this tutorial. If you are interested in learning how to use the mixins, check the [documentation](https://loopback.io/doc/en/lb3/Defining-mixins.html).
+I often use the Timestamp mixin and for this specific use case, [YeeHaw1234](https://stackoverflow.com/users/386778/yeehaw1234) wrote an answer on [stackoverflow](https://stackoverflow.com/questions/45060346/loopback-authorize-a-user-to-see-only-his-data/45113745) on how to create an owner mixin.
+
+#### Create a custom API endpoint.
+
+Custom API endpoints are always needed at some point in your application development.
+As an example, we will create the endpoint /api/Recipe/{id}/increment-views. This endpoint can be called once the recipe has been loaded on the application.
+
+We start with adding a views property to our Recipe model.
+I'll edit directly the common/models/recipe.json file and add the following property at the end of the properties object:
+
+```
+"views": {
+  "type": "number",
+  "default": 0
+}
+```
+
+Open again the common/models/recipe.ts and change
+```
+remotes: {
+  myRemote: {
+    returns: {arg: 'result', type: 'array'},
+    http: {path: '/my-remote', verb: 'get'}
+  }
+}
+```
+into
+```
+remotes: {
+  incrementViews: {
+    description: ["Increment a given recipe views"],
+    returns: {arg: 'views', type: 'number'},
+    http: {path: '/:id/increment-views', verb: 'get'},
+    accepts: [
+      {arg: "id", required: true, type: "string", http: {source: 'path'}, description: "Recipe Id"}
+    ]
+  }
+}
+```
+
+As we don't need nor the beforeMyRemote and afterMyRemote functions, we will delete them and we change myRemote function
+```
+beforeMyRemote(ctx: any, next: Function) {
+  console.log('recipe: before myRemote');
+  next();
+}
+
+myRemote(next: Function): void {
+  console.log('recipe: myRemote');
+  this.model.find(next);
+}
+
+afterMyRemote(ctx: any, next: Function) {
+  console.log('recipe: after myRemote');
+  next();
+}
+```
+
+with
+
+```
+incrementViews(id: string, next: Function): void {
+  // console.log('recipe: myRemote');
+  this.model.updateAll(
+    {id: id},
+    {'$inc': {views: 1}},
+    {allowExtendedOperators: true},
+    (err: any, result: any) => {
+      if (err) {
+        next(err);
+      }
+      // console.log(result);
+      this.model.findById(id, {fields: {views: true}}, (err: any, instance: any) => {
+        next(err, instance.views);
+      })
+    }
+  );
+}
+```
+We'll take some time to explain the code above:
+The arguments id is the id of the recipe that we passed as an argument in the request.
+The second argument next is the callback function. This next function is like next(error, data) and will return the error or the data in response of the API call.
+
+this.model is the current model we are using, the Recipe model.
+
+updateAll is a function belonging to the Recipe Model(and globally all the Persisted Models). See [here](http://apidocs.loopback.io/loopback/#persistedmodel-updateall) for more information.
+
+Here we use the $inc method and as it is a MongoDB function, we had to specify ```{allowExtendedOperators: true}```. We are using this MongoDB function in case many requests arrive at the same time, the incrementation will be made. Otherwise if we were using something like get the model, increment the property and save the model, we could loose some data as many requests can be performed at the same time.
+
+Then this function updateAll expects a callback, which is our ```(err: any, result: any) => {}```
+Once our incrementation has been made, we get the last value of our views and we pass it back to the callback function (our next function).

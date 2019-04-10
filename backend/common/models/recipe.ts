@@ -1,4 +1,5 @@
 import {Model} from '@mean-expert/model';
+
 /**
  * @module recipe
  * @description
@@ -15,9 +16,13 @@ import {Model} from '@mean-expert/model';
     afterMyRemote: {name: 'myRemote', type: 'afterRemote'},
   },
   remotes: {
-    myRemote: {
-      returns: {arg: 'result', type: 'array'},
-      http: {path: '/my-remote', verb: 'get'}
+    incrementViews: {
+      description: ["Increment a given recipe views"],
+      returns: {arg: 'views', type: 'number'},
+      http: {path: '/:id/increment-views', verb: 'get'},
+      accepts: [
+        {arg: "id", required: true, type: "string", http: {source: 'path'}, description: "Recipe Id"}
+      ]
     }
   }
 })
@@ -37,7 +42,10 @@ class Recipe {
   }
 
   beforeSave(ctx: any, next: Function): void {
-    console.log('recipe: before Save');
+    // console.log('recipe: before Save', ctx);
+    if (ctx.isNewInstance) {
+      ctx.instance.userId = ctx.options.accessToken.userId;
+    }
     next();
   }
 
@@ -56,19 +64,23 @@ class Recipe {
     next();
   }
 
-  beforeMyRemote(ctx: any, next: Function) {
-    console.log('recipe: before myRemote');
-    next();
-  }
+  incrementViews(id: string, next: Function): void {
+    // console.log('recipe: myRemote');
+    this.model.updateAll(
+      {id: id},
+      {'$inc': {views: 1}},
+      {allowExtendedOperators: true},
+      (err: any, result: any) => {
+        if (err) {
+          next(err);
+        }
+        // console.log(result);
+        this.model.findById(id, {fields: {views: true}}, (err: any, instance: any) => {
+          next(err, instance.views);
+        })
 
-  myRemote(next: Function): void {
-    console.log('recipe: myRemote');
-    this.model.find(next);
-  }
-
-  afterMyRemote(ctx: any, next: Function) {
-    console.log('recipe: after myRemote');
-    next();
+      }
+    );
   }
 
 }

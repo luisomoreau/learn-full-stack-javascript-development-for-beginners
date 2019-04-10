@@ -33,6 +33,10 @@
     },
     "image": {
       "type": "string"
+    },
+    "views": {
+      "type": "number",
+      "default": 0
     }
   },
   "validations": [],
