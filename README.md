@@ -1508,6 +1508,9 @@ Open your browser with the following url: [http://localhost:4200/](http://localh
 
 ![ng serve](assets/ng-serve.png)
 
+### Create a component
+
+
 We will create a component called home where we will display our recipes:
 
 ```
@@ -1527,6 +1530,8 @@ UPDATE src/app/app.module.ts (467 bytes)
 As you see, a new home folder has been created.
 Let's now remove all the the unnecessary code in app.component.html and just leave the ```<router-outlet></router-outlet>```
 
+### Routing
+
 Open now your app-routing.module.ts file
 
 And add:
@@ -1539,6 +1544,55 @@ const routes: Routes = [
 ];
 ```
 
+This code will tell your application to serve the home component when using the /home route. It also redirects the / route to the home
+
 Reload your browser at [http://localhost:4200/home](http://localhost:4200/home)
 
 ![home](assets/home.png)
+
+### Bootstrap
+
+We will now add Bootstrap to our application to use predefined styles and features:
+
+```
+$> npm install --save @ng-bootstrap/ng-bootstrap
+$> npm install --save bootstrap
+```
+
+Open the styles.scss file and add:
+```
+@import '~bootstrap/dist/css/bootstrap.min.css';
+```
+
+Open src/app/app.module.ts and add:
+```
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+...
+imports: [
+  ...
+  NgbModule.forRoot()
+],
+```
+
+Now change the home.component.html to
+
+```
+<section class="container">
+  <div class="row">
+    <div class="card" style="width: 18rem;">
+      <img class="card-img-top" src="https://github.com/luisomoreau/learn-full-stack-javascript-development-for-beginners/blob/master/assets/cookies-sweets-food-dessert-delicious-snack-sugar.jpg?raw=true" alt="Card image cap">
+      <div class="card-body">
+        <h5 class="card-title">Cookies</h5>
+        <p class="card-text">Here is my preview</p>
+        <a href="#" class="btn btn-primary">Discover</a>
+      </div>
+    </div>
+  </div>
+</section>
+```
+
+You have your first element. Good but now we want to get the recipes we added in our backend.
+
+### Loopback SDK builder
+
+To get all the recipes, Loopback comes with a tool called [Loopback SDK builder](https://github.com/mean-expert-official/loopback-sdk-builder). This tool gives the possibility to generate a SDK based on our Loopback models. We can then include this SDK in our Angular project.
