@@ -1492,3 +1492,53 @@ CREATE frontend/.editorconfig (246 bytes)
 CREATE frontend/.gitignore (629 bytes)
 ...
 ```
+
+Go to your frontend folder:
+```
+$> cd frontend/
+```
+
+Run your application:
+
+```
+$> ng serve
+```
+
+Open your browser with the following url: [http://localhost:4200/](http://localhost:4200/)
+
+![ng serve](assets/ng-serve.png)
+
+We will create a component called home where we will display our recipes:
+
+```
+$> ng generate component home
+```
+
+You will see the following output:
+
+```
+CREATE src/app/home/home.component.scss (0 bytes)
+CREATE src/app/home/home.component.html (23 bytes)
+CREATE src/app/home/home.component.spec.ts (614 bytes)
+CREATE src/app/home/home.component.ts (262 bytes)
+UPDATE src/app/app.module.ts (467 bytes)
+```
+
+As you see, a new home folder has been created.
+Let's now remove all the the unnecessary code in app.component.html and just leave the ```<router-outlet></router-outlet>```
+
+Open now your app-routing.module.ts file
+
+And add:
+```
+import {HomeComponent} from "./home/home.component";
+
+const routes: Routes = [
+  {path: 'home', component: HomeComponent},
+  {path: '', redirectTo: 'home', pathMatch: 'full'}
+];
+```
+
+Reload your browser at [http://localhost:4200/home](http://localhost:4200/home)
+
+![home](assets/home.png)
