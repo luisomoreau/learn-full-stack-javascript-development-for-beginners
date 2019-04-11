@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@mean-expert/boot-script": "^1.0.0",
+    "@mean-expert/loopback-sdk-builder": "^2.3.1",
     "@mean-expert/model": "^1.0.9",
     "@types/node": "^11.13.2",
     "compression": "^1.0.3",
