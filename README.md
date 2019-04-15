@@ -1591,6 +1591,8 @@ Now change the home.component.html to
 </section>
 ```
 
+![angular first card](assets/angular-first-card.png)
+
 You have your first element. Good but now we want to get the recipes we added in our backend.
 
 ### Loopback SDK builder
